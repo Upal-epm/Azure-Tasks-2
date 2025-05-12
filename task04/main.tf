@@ -11,7 +11,7 @@ resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = [var.address_space]
 
   tags = {
     Creator = var.student_email
@@ -22,7 +22,7 @@ resource "azurerm_subnet" "subnet" {
   name                 = var.subnet
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = [var.sub_prefix]
 }
 
 resource "azurerm_network_security_group" "nsg" {
@@ -37,7 +37,7 @@ resource "azurerm_network_security_group" "nsg" {
 
 resource "azurerm_network_security_rule" "http" {
   name                        = var.nsg_http
-  priority                    = 100
+  priority                    = var.priority_http
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
@@ -51,7 +51,7 @@ resource "azurerm_network_security_rule" "http" {
 
 resource "azurerm_network_security_rule" "ssh" {
   name                        = var.nsg_ssh
-  priority                    = 110
+  priority                    = var.priority_ssh
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
@@ -69,7 +69,6 @@ resource "azurerm_public_ip" "public_ip" {
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   domain_name_label   = var.dns
-  sku                 = "Basic"
 
   tags = {
     Creator = var.student_email
@@ -82,7 +81,7 @@ resource "azurerm_network_interface" "nic" {
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = var.pip_config_name
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.public_ip.id
@@ -137,7 +136,6 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
       user     = var.admin_username
       password = var.vm_password
       host     = azurerm_public_ip.public_ip.ip_address
-      timeout  = "2m"
     }
   }
 

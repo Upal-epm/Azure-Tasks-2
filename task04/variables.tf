@@ -78,3 +78,28 @@ variable "vm_password" {
   description = "Admin Password for VM"
   sensitive   = true
 }
+
+variable "address_space" {
+  type        = string
+  description = "Address Space for Vnet"
+}
+
+variable "sub_prefix" {
+  type        = string
+  description = "Address Prefix for Subnet"
+}
+
+variable "priority_http" {
+  type        = string
+  description = "Priority for http rule"
+}
+
+variable "priority_ssh" {
+  type        = string
+  description = "Priority for ssh rule"
+}
+
+variable "pip_config_name" {
+  type        = string
+  description = "Public IP Configuration Name"
+}
